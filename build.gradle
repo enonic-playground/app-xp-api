@@ -1,0 +1,96 @@
+plugins {
+    id 'com.enonic.defaults' version '2.1.2'
+    id 'com.enonic.xp.app' version '3.2.0'
+    id 'com.enonic.xp.doc' version '2.0.0'
+    id 'com.github.node-gradle.node' version '3.5.1'
+    id 'maven-publish'
+    id 'jacoco'
+}
+
+apply from: "$rootDir/gradle/env.gradle"
+apply from: "$rootDir/gradle/node.gradle"
+
+app {
+    name = project.appName
+    displayName = 'Headless API'
+    vendorName = 'Enonic AS'
+    vendorUrl = 'https://enonic.com'
+    systemVersion = "${xpVersion}"
+}
+
+dependencies {
+    implementation "com.enonic.xp:core-api:${xpVersion}"
+    implementation "com.enonic.xp:script-api:${xpVersion}"
+    implementation "com.enonic.xp:portal-api:${xpVersion}"
+    implementation "com.enonic.xp:jaxrs-api:${xpVersion}"
+
+    include "com.enonic.xp:lib-auth:${xpVersion}"
+    include "com.enonic.xp:lib-content:${xpVersion}"
+    include "com.enonic.xp:lib-context:${xpVersion}"
+    include "com.enonic.xp:lib-portal:${xpVersion}"
+    include "com.enonic.xp:lib-websocket:${xpVersion}"
+    include "com.enonic.xp:lib-event:${xpVersion}"
+    include "com.enonic.lib:lib-mustache:2.1.0"
+    include "com.enonic.lib:lib-guillotine:6.1.0-B2"
+
+    testImplementation 'org.mockito:mockito-core:5.1.1'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.1.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
+    testImplementation "com.enonic.xp:testing:${xpVersion}"
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    xp.enonicRepo( 'dev' )
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+}
+
+check.dependsOn jacocoTestReport
+
+test {
+    useJUnitPlatform()
+}
+
+node {
+    version = '16.0.0'
+    download = true
+}
+
+task lint( type: NpmTask, group: "verification", dependsOn: npmInstall ) {
+    args = ['run', 'lint:quiet']
+    inputs.files fileTree( dir: 'src', include: '**/*.ts' )
+}
+
+check.dependsOn( lint )
+
+task webpack( type: NpmTask, dependsOn: npmInstall ) {
+    environment = ['NODE_ENV': nodeEnvironment()]
+    description = 'Build UI resources (ts, css, etc).'
+    args = ['run', 'build']
+    inputs.dir "src/main"
+    inputs.file 'webpack.config.js'
+    outputs.dir "$buildDir/resources/main"
+}
+
+jar {
+    exclude 'assets/**/*.ts'
+    exclude 'assets/**/*.less'
+    exclude 'assets/styles/graphiql.min.css'
+    exclude 'assets/**/styles/*.js'
+
+    if ( isProd() )
+    {
+        exclude 'assets/**/*.map'
+    }
+
+    outputs.dir "$buildDir/resources/main"
+
+    dependsOn webpack
+}
