@@ -1,9 +1,7 @@
 /* global log, Java */
 
-const guillotineLib = require('/lib/guillotine');
 const webSocketLib = require('/lib/xp/websocket');
 const graphQlRxLib = require('/lib/graphql-rx');
-const appLib = require('/lib/app');
 const eventLib = require('/lib/xp/event');
 const graphQlLib = require('/lib/graphql');
 
@@ -36,9 +34,7 @@ eventLib.listener({
 function getSchema() {
     if (!schema) {
         Java.type('com.enonic.app.api.Synchronizer').sync(__.toScriptValue(function () {
-            schema = guillotineLib.createSchema({
-                applications: appLib.getInstalledApplications().applications
-            });
+            schema = __.newBean('com.enonic.app.api.OneApiScriptBean').getGraphQLSchema();
         }));
     }
     return schema;
