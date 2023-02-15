@@ -1,5 +1,6 @@
 package com.enonic.app.api;
 
+import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
@@ -9,8 +10,15 @@ import java.util.stream.Collectors;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import graphql.Scalars;
+import graphql.schema.DataFetcher;
+import graphql.schema.DataFetchingEnvironment;
+import graphql.schema.FieldCoordinates;
 import graphql.schema.GraphQLCodeRegistry;
+import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
 import graphql.schema.GraphQLType;
@@ -27,6 +35,8 @@ import com.enonic.xp.script.ScriptValue;
 public class SchemaProviderImpl
     implements SchemaProvider
 {
+    private static final Logger LOG = LoggerFactory.getLogger( SchemaProviderImpl.class );
+
     private static final String METHOD_NAME = "getGraphQLSchema";
 
     private static final String SCRIPT_PATH = "api/api.js";
@@ -62,7 +72,25 @@ public class SchemaProviderImpl
             additionalTypes.addAll( externalSchema.getAdditionalTypes() );
         } );
 
-        return GraphQLSchema.newSchema().query( queryFieldBuilder.build() ).codeRegistry( codeRegisterBuilder.build() ).additionalTypes( additionalTypes ).build();
+        queryFieldBuilder.field( GraphQLFieldDefinition.newFieldDefinition().
+            name( "serverTime" ).
+            description( "Returns current time on the server" ).
+            type( Scalars.GraphQLString ).
+            build()
+        );
+
+        codeRegisterBuilder.dataFetcher( FieldCoordinates.coordinates( "Query", "serverTime" ), new DataFetcher<String>()
+        {
+            @Override
+            public String get( final DataFetchingEnvironment environment )
+                throws Exception
+            {
+                return Instant.now().toString();
+            }
+        } );
+
+        return GraphQLSchema.newSchema().query( queryFieldBuilder.build() ).codeRegistry( codeRegisterBuilder.build() ).additionalTypes(
+            additionalTypes ).build();
     }
 
     private List<GraphQLSchema> getGraphQLSchemasFromApplications()
@@ -79,8 +107,15 @@ public class SchemaProviderImpl
             ScriptExports exports = scriptService.execute( resourceKey );
             if ( exports.hasMethod( METHOD_NAME ) )
             {
-                ScriptValue scriptValue = exports.executeMethod( METHOD_NAME );
-                return (GraphQLSchema) scriptValue.getValue();
+                try
+                {
+                    ScriptValue scriptValue = exports.executeMethod( METHOD_NAME );
+                    return (GraphQLSchema) scriptValue.getValue();
+                }
+                catch ( Exception e )
+                {
+                    LOG.warn( "Schema can not be extracted from {}", resourceKey, e );
+                }
             }
         }
         return null;

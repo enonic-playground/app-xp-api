@@ -12,7 +12,7 @@ apply from: "$rootDir/gradle/node.gradle"
 
 app {
     name = project.appName
-    displayName = 'Headless API'
+    displayName = 'One API'
     vendorName = 'Enonic AS'
     vendorUrl = 'https://enonic.com'
     systemVersion = "${xpVersion}"
@@ -101,6 +101,5 @@ jar {
 
     dependsOn webpack
 
-    bnd( 'Bundle-Name': 'APP-XP-API',
-         'Export-Package': 'graphql.*;-split-package:=merge-first,org.dataloader.*;-split-package:=merge-first', )
+    bnd( 'Export-Package': 'graphql.*;-split-package:=merge-first,org.dataloader.*;-split-package:=merge-first', )
 }

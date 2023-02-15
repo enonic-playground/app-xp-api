@@ -22,11 +22,6 @@ eventLib.listener({
             Java.type('com.enonic.app.api.Synchronizer').sync(__.toScriptValue(function () {
                 schema = null;
             }));
-
-            eventLib.send({
-                type: 'com.enonic.app.guillotine-schemaChanged',
-                distributed: true
-            });
         }
     }
 });
@@ -63,10 +58,6 @@ exports.get = function (req) {
     }
     return {
         webSocket: {
-            data: {
-                branch: req.branch,
-                repositoryId: req.repositoryId
-            },
             subProtocols: ['graphql-transport-ws']
         }
     };
@@ -154,10 +145,7 @@ function handleSubscribeMessage(subscriptionEvent, message) {
                 onNext: (payload) => {
                     if (payload.data.event.dataAsJson && payload.data.event.dataAsJson.nodes) {
                         Object.keys(payload.data.event.dataAsJson.nodes).forEach(key => {
-                            let node = payload.data.event.dataAsJson.nodes[key];
-                            if (node.repo === subscriptionEvent.data.repositoryId && node.branch === subscriptionEvent.data.branch) {
-                                sendWSMsg(sessionId, operationId, payload);
-                            }
+                            sendWSMsg(sessionId, operationId, payload);
                         });
                     } else {
                         sendWSMsg(sessionId, operationId, payload);

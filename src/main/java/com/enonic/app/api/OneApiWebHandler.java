@@ -30,7 +30,7 @@ import com.enonic.xp.web.websocket.WebSocketContext;
 import com.enonic.xp.web.websocket.WebSocketEndpoint;
 
 @Component(immediate = true, service = WebHandler.class)
-public class CommonApiWebHandler
+public class OneApiWebHandler
     extends BaseWebHandler
 {
     private static final Pattern URL_PATTERN = Pattern.compile( "^(/api)([/]*)$" );
@@ -44,7 +44,7 @@ public class CommonApiWebHandler
     private final ControllerScriptFactory controllerScriptFactory;
 
     @Activate
-    public CommonApiWebHandler( final @Reference ControllerScriptFactory controllerScriptFactory )
+    public OneApiWebHandler( final @Reference ControllerScriptFactory controllerScriptFactory )
     {
         super( -49 );
         this.controllerScriptFactory = controllerScriptFactory;
