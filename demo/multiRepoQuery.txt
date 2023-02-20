@@ -1,0 +1,61 @@
+1. Query
+
+query complexQuery($multiRepoQuery: QueryDSLInput!, $searchTargets: [SearchTargetInput]!) {
+  serverTime
+  guillotine {
+    multiRepoQuery(query: $multiRepoQuery, searchTargets: $searchTargets) {
+      totalCount
+      edges {
+        node {
+          _id
+          displayName
+        }
+        cursor
+        project
+        branch
+      }
+    }
+  }
+  getPersonByName(name: "James") {
+    name
+    age
+  }
+}
+
+
+2. Variables
+
+{
+  "multiRepoQuery": {
+      "term": {
+        "field": "displayName",
+        "value": {
+          "string": "Headless Movie Database"
+        }
+      }
+  },
+  "searchTargets": [
+      {
+        "project": "hmdb",
+        "branch": "draft",
+        "principalKeys": ["role:system.admin"]
+      },
+      {
+        "project": "hmdb",
+        "branch": "master",
+        "principalKeys": ["role:system.admin"]
+      },
+      {
+        "project": "next",
+        "branch": "draft",
+        "principalKeys": ["role:system.admin"]
+      }
+  ]
+}
+
+3. Headers
+
+{
+  "X-Api-Project": "hmdb",
+  "X-Api-Branch": "draft"
+}

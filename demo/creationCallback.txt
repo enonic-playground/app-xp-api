@@ -1,0 +1,31 @@
+1. Query
+
+query creationCallbackDemo($key: ID!) {
+  guillotine {
+    get(key: $key) {
+      ... on com_enonic_app_hmdb_Article {
+        _id
+        displayName
+        data {
+          customField {
+            id
+            title
+          }
+        }
+      }
+    }
+  }
+}
+
+2. Variables
+
+{
+  "key": "866a4916-ba01-4702-b956-71b6c694790f"
+}
+
+3. Headers
+
+{
+  "X-Api-Project": "hmdb",
+  "X-Api-Branch": "draft"
+}
