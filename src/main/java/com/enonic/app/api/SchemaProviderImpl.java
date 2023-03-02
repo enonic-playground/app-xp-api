@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import graphql.Scalars;
 import graphql.schema.DataFetcher;
-import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.FieldCoordinates;
 import graphql.schema.GraphQLCodeRegistry;
 import graphql.schema.GraphQLFieldDefinition;
@@ -79,15 +78,8 @@ public class SchemaProviderImpl
             build()
         );
 
-        codeRegisterBuilder.dataFetcher( FieldCoordinates.coordinates( "Query", "serverTime" ), new DataFetcher<String>()
-        {
-            @Override
-            public String get( final DataFetchingEnvironment environment )
-                throws Exception
-            {
-                return Instant.now().toString();
-            }
-        } );
+        codeRegisterBuilder.dataFetcher( FieldCoordinates.coordinates( "Query", "serverTime" ),
+                                         (DataFetcher<String>) environment -> Instant.now().toString() );
 
         return GraphQLSchema.newSchema().query( queryFieldBuilder.build() ).codeRegistry( codeRegisterBuilder.build() ).additionalTypes(
             additionalTypes ).build();

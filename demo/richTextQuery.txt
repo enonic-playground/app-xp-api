@@ -1,0 +1,50 @@
+###############
+
+query imageService($searchTarget: SearchTargetInput) {
+  guillotine(searchTarget: $searchTarget) {
+    get(key: "b0c9f9f1-1928-4a6a-9bfb-666559552a26") {
+      _id
+      displayName
+      ... on media_Image {
+        imageUrl(scale: "block(310,175)", type: absolute)
+      }
+      dataAsJson
+      attachments {
+        attachmentUrl(type: absolute)
+      }
+      pageUrl(type: server)
+    }
+    richText: get(key: "866a4916-ba01-4702-b956-71b6c694790f") {
+      pageUrl(type: absolute)
+      ... on com_enonic_app_hmdb_Article {
+        data {
+          blocks {
+            text {
+              text(processHtml: {
+                type: absolute
+              }) {
+                processedHtml
+                links {
+                  uri
+                  ref
+                }
+                images {
+                  ref
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+###############
+
+{
+   "searchTarget": {
+    "project": "hmdb",
+    "branch": "draft"
+  }
+}

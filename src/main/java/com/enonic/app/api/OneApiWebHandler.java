@@ -1,6 +1,5 @@
 package com.enonic.app.api;
 
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -9,7 +8,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.enonic.xp.app.ApplicationKey;
-import com.enonic.xp.branch.Branch;
 import com.enonic.xp.context.Context;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
@@ -17,7 +15,6 @@ import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalResponse;
 import com.enonic.xp.portal.controller.ControllerScript;
 import com.enonic.xp.portal.controller.ControllerScriptFactory;
-import com.enonic.xp.repository.RepositoryId;
 import com.enonic.xp.resource.ResourceKey;
 import com.enonic.xp.web.HttpMethod;
 import com.enonic.xp.web.WebRequest;
@@ -34,10 +31,6 @@ public class OneApiWebHandler
     extends BaseWebHandler
 {
     private static final Pattern URL_PATTERN = Pattern.compile( "^(/api)([/]*)$" );
-
-    private static final String X_GUILLOTINE_PROJECT_HEADER = "X-Api-Project";
-
-    private static final String X_GUILLOTINE_BRANCH_HEADER = "X-Api-Branch";
 
     private static final ApplicationKey APPLICATION_KEY = ApplicationKey.from( "com.enonic.app.api" );
 
@@ -65,10 +58,6 @@ public class OneApiWebHandler
         final PortalRequest portalRequest = castToPortalRequest( webRequest );
         portalRequest.setContextPath( portalRequest.getBaseUri() );
         portalRequest.setApplicationKey( APPLICATION_KEY );
-        portalRequest.setRepositoryId( RepositoryId.from(
-            "com.enonic.cms." + Objects.requireNonNullElse( webRequest.getHeaders().get( X_GUILLOTINE_PROJECT_HEADER ), "default" ) ) );
-        portalRequest.setBranch(
-            Branch.from( Objects.requireNonNullElse( webRequest.getHeaders().get( X_GUILLOTINE_BRANCH_HEADER ), "draft" ) ) );
 
         if ( webRequest.getMethod() == HttpMethod.GET && !webRequest.isWebSocket() )
         {

@@ -37,18 +37,15 @@ query complexQuery($multiRepoQuery: QueryDSLInput!, $searchTargets: [SearchTarge
   "searchTargets": [
       {
         "project": "hmdb",
-        "branch": "draft",
-        "principalKeys": ["role:system.admin"]
+        "branch": "draft"
       },
       {
         "project": "hmdb",
-        "branch": "master",
-        "principalKeys": ["role:system.admin"]
+        "branch": "master"
       },
       {
         "project": "next",
-        "branch": "draft",
-        "principalKeys": ["role:system.admin"]
+        "branch": "draft"
       }
   ]
 }

@@ -1,9 +1,11 @@
 const mustache = require('/lib/mustache');
 const portalLib = require('/lib/xp/portal');
+const urlLib = require('/lib/urls');
 
 exports.get = function (req) {
     const view = resolve('headless.html');
-    const assetsUrl = portalLib.assetUrl({path: "/"});
+    const assetsUrl = urlLib.assetUrl("/api", "server");
+    // const assetsUrl = portalLib.assetUrl({path: "/"});
     const baseUrl = '/api';
     const wsUrl = portalLib.url({
         path: baseUrl,
