@@ -33,13 +33,6 @@ public abstract class EndpointHandler
             ( endpointPath.startsWith( pathPrefix ) || endpointPath.equals( path ) );
     }
 
-    protected String findPreRestPath( final WebRequest req )
-    {
-        final String rawPath = req.getRawPath();
-        final int endpointPathIndex = rawPath.indexOf( "/_/" );
-        return rawPath.substring( 0, endpointPathIndex + path.length() );
-    }
-
     protected final String findRestPath( final WebRequest req )
     {
         final String endpointPath = req.getEndpointPath();
