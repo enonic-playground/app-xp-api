@@ -1,6 +1,6 @@
 package com.enonic.app.api;
 
-import java.util.regex.Matcher;
+import java.util.EnumSet;
 import java.util.regex.Pattern;
 
 import org.osgi.service.component.annotations.Activate;
@@ -39,7 +39,7 @@ public class OneApiWebHandler
     @Activate
     public OneApiWebHandler( final @Reference ControllerScriptFactory controllerScriptFactory )
     {
-        super( -49 );
+        super( -49, EnumSet.of( HttpMethod.GET, HttpMethod.POST, HttpMethod.OPTIONS ) );
         this.controllerScriptFactory = controllerScriptFactory;
     }
 
@@ -47,8 +47,18 @@ public class OneApiWebHandler
     protected boolean canHandle( final WebRequest webRequest )
     {
         final String path = webRequest.getRawPath();
-        final Matcher matcher = URL_PATTERN.matcher( path );
-        return matcher.matches() && ( webRequest.getMethod() == HttpMethod.POST || webRequest.getMethod() == HttpMethod.GET );
+        return URL_PATTERN.matcher( path ).matches();
+    }
+
+    @Override
+    public WebResponse handle( final WebRequest webRequest, final WebResponse webResponse, final WebHandlerChain webHandlerChain )
+        throws Exception
+    {
+        final PortalResponse.Builder builder = PortalResponse.create( super.handle( webRequest, webResponse, webHandlerChain ) );
+        builder.header( "Access-Control-Allow-Origin", "*" );
+        builder.header( "Access-Control-Allow-Methods", "POST, OPTIONS" );
+        builder.header( "Access-Control-Allow-Headers", "Content-Type" );
+        return builder.build();
     }
 
     @Override

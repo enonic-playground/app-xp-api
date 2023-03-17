@@ -50,6 +50,13 @@ function createQueryContext(headers) {
     }
 }
 
+exports.options = function () {
+    return {
+        contentType: 'text/plain;charset=utf-8',
+        headers: CORS_HEADERS
+    };
+};
+
 exports.get = function (req) {
     if (!req.webSocket) {
         return {
@@ -57,6 +64,7 @@ exports.get = function (req) {
         };
     }
     return {
+        headers: CORS_HEADERS,
         webSocket: {
             subProtocols: ['graphql-transport-ws']
         }
